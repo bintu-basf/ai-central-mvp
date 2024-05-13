@@ -1,5 +1,7 @@
 import streamlit as st
 import openai
+from openai import OpenAI
+client = OpenAI()
 from streamlit_option_menu import option_menu
 
 # Set API key through Streamlit's secrets management
@@ -13,7 +15,7 @@ vector_store_id = "asst_2Jd132ACrJGpF6QDtwFYexgG"
 def send_message(user_message):
     try:
         # Create a thread with the user message
-        thread = openai.Thread.create(
+        thread = client.beta.threads.create(
             assistant_id=assistant_id,
             messages=[{"role": "user", "content": user_message}]
         )
