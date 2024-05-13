@@ -5,40 +5,56 @@ from streamlit_option_menu import option_menu
 # Set API key through Streamlit's secrets management
 openai.api_key = st.secrets["openai_api_key"]
 
-def get_response(prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", 
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=150
+import openai
+import streamlit as st
+
+# Assuming API key is set in Streamlit's secrets
+openai.api_key = st.secrets["openai_api_key"]
+
+assistant_id = "asst_2Jd132ACrJGpF6QDtwFYexgG"  # Actual Assistant ID
+
+# Function to start a new conversation thread with the Assistant
+def create_thread(assistant_id):
+    response = openai.Thread.create(assistant_id=assistant_id)
+    return response.id  # Returns the newly created Thread ID
+
+# Function to send a message to the Assistant within a thread
+def send_message(thread_id, message):
+    response = openai.Message.create(
+        thread_id=thread_id,
+        message={"role": "user", "content": message}
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].text.strip() if response.choices else "No response generated."
 
+# Streamlit UI components
 def main():
-    st.title('AI Chatbot with Pre-set Prompts')
-    with st.sidebar:
-        selected_prompt = option_menu("Choose a prompt", [
-            "Describe AI",
-            "Benefits of AI in business",
-            "Challenges of AI implementation",
-            "Future of AI technology",
-            "Custom Prompt"],
-            icons=['book', 'briefcase-fill', 'exclamation-triangle-fill', 'cpu-fill', 'pencil'],
-            menu_icon="cast", default_index=0, orientation="vertical")
+    st.title("AI Central - AI Adoption Assistant")
+    
+    # Initialize or retrieve an existing Thread ID
+    if 'thread_id' not in st.session_state:
+        st.session_state.thread_id = create_thread(assistant_id)  # Create a new thread at the start
 
-    if selected_prompt == "Custom Prompt":
-        user_prompt = st.text_input("Enter your prompt:", "")
-        if st.button("Get Response"):
-            response = get_response(user_prompt)
-            st.text_area("Response:", value=response, height=300)
-    else:
-        prompt_dict = {
-            "Describe AI": "Describe artificial intelligence and its core technologies.",
-            "Benefits of AI in business": "Explain the benefits of using AI in business.",
-            "Challenges of AI implementation": "Discuss the challenges associated with implementing AI in an organization.",
-            "Future of AI technology": "Predict the future developments in AI technology over the next decade."
-        }
-        response = get_response(prompt_dict[selected_prompt])
-        st.text_area("Response:", value=response, height=300)
+    # Sidebar for pre-populated prompts
+    with st.sidebar:
+        st.header("Try Pre-populated Queries")
+        prompt = st.radio(
+            "Select a prompt",
+            ("What are the latest trends in AI?", 
+             "How can AI enhance HR functions?", 
+             "Generate a report on recent AI innovations in Finance", 
+             "What AI tools are recommended for marketing?"),
+            index=0
+        )
+
+        if st.button("Ask"):
+            response = send_message(st.session_state.thread_id, prompt)
+            st.text_area("AI Response:", value=response, height=300, key="response_area")
+
+    # Allow users to type their own questions
+    user_input = st.text_input("Or ask your own question:")
+    if st.button("Submit"):
+        response = send_message(st.session_state.thread_id, user_input)
+        st.text_area("AI Response:", value=response, height=300, key="custom_response_area")
 
 if __name__ == "__main__":
     main()
