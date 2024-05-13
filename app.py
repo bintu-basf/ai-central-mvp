@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 from streamlit_option_menu import option_menu
 
-# Assuming you will set API key through Streamlit's secrets management
+# Set API key through Streamlit's secrets management
 openai.api_key = st.secrets["openai_api_key"]
 
 def get_response(prompt):
