@@ -10,7 +10,7 @@ assistant_id = "yasst_2Jd132ACrJGpF6QDtwFYexgG"
 vector_store_id = "asst_2Jd132ACrJGpF6QDtwFYexgG" 
 
 # Function to send a message to a specific thread and receive a response
-def send_message(user_message):
+def send_message(assistant_id, user_message):
     try:
         # Create a thread with the user message
         thread = openai.beta.threads.create(
