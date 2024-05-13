@@ -15,7 +15,7 @@ assistant_id = "asst_2Jd132ACrJGpF6QDtwFYexgG"  # Actual Assistant ID
 
 # Function to start a new conversation thread with the Assistant
 def create_thread(assistant_id):
-    response = openai.Thread.create(assistant_id=assistant_id)
+    response = openai.thread.create(assistant_id=assistant_id)
     return response.id  # Returns the newly created Thread ID
 
 # Function to send a message to the Assistant within a thread
