@@ -3,7 +3,7 @@ import openai
 from streamlit_option_menu import option_menu
 
 # Set API key through Streamlit's secrets management
-openai.api_key = st.secrets["openai_api_key"]
+openai.api_key = "sk-proj-Hw0n8BkpRA46UhyFotzXT3BlbkFJ1iszdKVZzOmEjTwhqmfY"
 
 # Use existing Assistant ID and Vector Store ID
 assistant_id = "yasst_2Jd132ACrJGpF6QDtwFYexgG" 
