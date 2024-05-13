@@ -13,7 +13,7 @@ vector_store_id = "asst_2Jd132ACrJGpF6QDtwFYexgG"
 def send_message(user_message):
     try:
         # Create a thread with the user message
-        thread = thread.create(
+        thread = openai.beta.threads.create(
             assistant_id=assistant_id,
             messages=[{"role": "user", "content": user_message}]
         )
