@@ -5,56 +5,44 @@ from streamlit_option_menu import option_menu
 # Set API key through Streamlit's secrets management
 openai.api_key = st.secrets["openai_api_key"]
 
-import openai
-import streamlit as st
+# Use existing Assistant ID and Vector Store ID
+assistant_id = "yasst_2Jd132ACrJGpF6QDtwFYexgG" 
+vector_store_id = "asst_2Jd132ACrJGpF6QDtwFYexgG" 
 
-# Assuming API key is set in Streamlit's secrets
-openai.api_key = st.secrets["openai_api_key"]
-
-assistant_id = "asst_2Jd132ACrJGpF6QDtwFYexgG"  # Actual Assistant ID
-
-# Function to start a new conversation thread with the Assistant
-def create_thread(assistant_id):
-    response = openai.thread.create(assistant_id=assistant_id)
-    return response.id  # Returns the newly created Thread ID
-
-# Function to send a message to the Assistant within a thread
-def send_message(thread_id, message):
-    response = openai.Message.create(
-        thread_id=thread_id,
-        message={"role": "user", "content": message}
-    )
-    return response.choices[0].text.strip() if response.choices else "No response generated."
-
-# Streamlit UI components
-def main():
-    st.title("AI Central - AI Adoption Assistant")
-    
-    # Initialize or retrieve an existing Thread ID
-    if 'thread_id' not in st.session_state:
-        st.session_state.thread_id = create_thread(assistant_id)  # Create a new thread at the start
-
-    # Sidebar for pre-populated prompts
-    with st.sidebar:
-        st.header("Try Pre-populated Queries")
-        prompt = st.radio(
-            "Select a prompt",
-            ("What are the latest trends in AI?", 
-             "How can AI enhance HR functions?", 
-             "Generate a report on recent AI innovations in Finance", 
-             "What AI tools are recommended for marketing?"),
-            index=0
+# Function to send a message to a specific thread and receive a response
+def send_message(user_message):
+    try:
+        # Create a thread with the user message
+        thread = openai.Thread.create(
+            assistant_id=assistant_id,
+            messages=[{"role": "user", "content": user_message}]
         )
+        
+        # Retrieve the response from the newly created thread
+        # Assuming the last message in the thread is the assistant's response
+        if thread.messages:
+            assistant_response = thread.messages[-1].content
+        else:
+            assistant_response = "No response generated."
 
-        if st.button("Ask"):
-            response = send_message(st.session_state.thread_id, prompt)
-            st.text_area("AI Response:", value=response, height=300, key="response_area")
+        return assistant_response
+    except Exception as e:
+        st.error(f"Error while getting response: {e}")
+        return "Error in processing your request."
 
-    # Allow users to type their own questions
-    user_input = st.text_input("Or ask your own question:")
+# Streamlit UI to interact with the assistant
+def main():
+    st.title("AI Central - AI Adoption Manager")
+
+    department = st.selectbox("Select your department:", ["IT", "HR", "Finance", "Marketing"])
+    function = st.text_input("Enter your function or role:")
+    user_question = st.text_input("Ask a question about Microsoft tools or resources:")
+
     if st.button("Submit"):
-        response = send_message(st.session_state.thread_id, user_input)
-        st.text_area("AI Response:", value=response, height=300, key="custom_response_area")
+        # Create a detailed question incorporating user's department and function
+        detailed_question = f"As a {function} in {department}, {user_question}"
+        response = send_message(detailed_question)
+        st.text_area("AI Response:", value=response, height=300, key="response_area")
 
 if __name__ == "__main__":
     main()
